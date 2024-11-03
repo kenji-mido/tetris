@@ -2,31 +2,31 @@ import random
 import curses
 import time
 
-# ゲーム設定の定数
+# Constants for game settings
 GAME_CONST = {
-    # ゲームボードのサイズ
-    'BOARD_HEIGHT': 22,      # ボードの高さ
-    'BOARD_WIDTH': 12,       # ボードの幅
-    'MIN_TERM_HEIGHT': 24,   # 必要な最小ターミナル高さ
-    'MIN_TERM_WIDTH': 40,    # 必要な最小ターミナル幅
+    # Size of the game board
+    'BOARD_HEIGHT': 22,      # Height of the board
+    'BOARD_WIDTH': 12,       # Width of the board
+    'MIN_TERM_HEIGHT': 24,   # Minimum terminal height required
+    'MIN_TERM_WIDTH': 40,    # Minimum terminal width required
     
-    # 表示設定
-    'INFO_MARGIN': 4,        # 情報表示領域までの余白
-    'BLOCK_CHAR': '██',      # ブロックの表示文字
-    'EMPTY_CHAR': '. ',      # 空きスペースの表示文字
+    # Display settings
+    'INFO_MARGIN': 4,        # Margin to the information display area
+    'BLOCK_CHAR': '██',      # Character to display blocks
+    'EMPTY_CHAR': '. ',      # Character to display empty spaces
     
-    # ゲーム速度
-    'FALL_SPEED': 0.5,      # 落下速度（秒）
-    'FRAME_RATE': 0.05,     # 画面更新間隔（秒）
+    # Game speed
+    'FALL_SPEED': 0.5,      # Fall speed (seconds)
+    'FRAME_RATE': 0.05,     # Screen update interval (seconds)
     
-    # スコア設定
-    'SCORES': [0, 100, 300, 500, 800],  # 0,1,2,3,4ライン消しのスコア
+    # Score settings
+    'SCORES': [0, 100, 300, 500, 800],  # Scores for clearing 0,1,2,3,4 lines
 
-    # ゲーム制御
-    'KEY_QUIT': ord('q'),    # 終了キー
-    'KEY_DROP': ord(' '),    # ハードドロップキー
+    # Game controls
+    'KEY_QUIT': ord('q'),    # Quit key
+    'KEY_DROP': ord(' '),    # Hard drop key
     
-    # 色設定
+    # Color settings
     'COLOR_PAIRS': [
         (curses.COLOR_CYAN, curses.COLOR_BLACK),     # I piece
         (curses.COLOR_YELLOW, curses.COLOR_BLACK),   # O piece
@@ -38,15 +38,15 @@ GAME_CONST = {
     ]
 }
 
-# テトリミノの定義（既存のまま）
+# Definition of Tetriminos (unchanged)
 TETRIMINOS = [
-    {'shape': [[1, 1, 1, 1]], 'color': 1},      # I: シアン
-    {'shape': [[1, 1], [1, 1]], 'color': 2},    # O: 黄色
-    {'shape': [[1, 1, 1], [0, 1, 0]], 'color': 3},  # T: マゼンタ
-    {'shape': [[1, 1, 1], [1, 0, 0]], 'color': 4},  # L: 青
-    {'shape': [[1, 1, 1], [0, 0, 1]], 'color': 5},  # J: オレンジ
-    {'shape': [[1, 1, 0], [0, 1, 1]], 'color': 6},  # S: 緑
-    {'shape': [[0, 1, 1], [1, 1, 0]], 'color': 7},  # Z: 赤
+    {'shape': [[1, 1, 1, 1]], 'color': 1},      # I: Cyan
+    {'shape': [[1, 1], [1, 1]], 'color': 2},    # O: Yellow
+    {'shape': [[1, 1, 1], [0, 1, 0]], 'color': 3},  # T: Magenta
+    {'shape': [[1, 1, 1], [1, 0, 0]], 'color': 4},  # L: Blue
+    {'shape': [[1, 1, 1], [0, 0, 1]], 'color': 5},  # J: Orange
+    {'shape': [[1, 1, 0], [0, 1, 1]], 'color': 6},  # S: Green
+    {'shape': [[0, 1, 1], [1, 1, 0]], 'color': 7},  # Z: Red
 ]
 
 class Tetris:
@@ -60,15 +60,15 @@ class Tetris:
         self.score = 0
         
     def new_piece(self):
-        # ランダムにテトリミノを選択
+        # Select a Tetrimino randomly
         piece = random.choice(TETRIMINOS)
         shape = piece['shape']
         
-        # 新しいピースを作成
+        # Create a new piece
         self.current_piece = {
-            'shape': shape[:],  # シェイプをコピー
+            'shape': shape[:],  # Copy the shape
             'color': piece['color'],
-            'x': self.width // 2 - len(shape[0]) // 2,  # 中央に配置
+            'x': self.width // 2 - len(shape[0]) // 2,  # Place in the center
             'y': 0
         }
 
@@ -153,25 +153,25 @@ class Tetris:
         else:
             self.freeze_piece()
             self.clear_lines()
-            # 一番上の行にブロックがある場合はゲームオーバー
+            # Game over if there are blocks in the top row
             if any(self.board[0]):
                 self.game_over = True
                 return
             self.new_piece()
 
 def main(stdscr):
-    # 画面初期化
+    # Initialize the screen
     curses.start_color()
     curses.use_default_colors()
     curses.curs_set(0)
     stdscr.nodelay(1)
     stdscr.keypad(1)
     
-    # 色ペアの初期化
+    # Initialize color pairs
     for i, (fg, bg) in enumerate(GAME_CONST['COLOR_PAIRS'], 1):
         curses.init_pair(i, fg, bg)
     
-    # ウィンドウサイズのチェック
+    # Check window size
     height, width = stdscr.getmaxyx()
     if height < GAME_CONST['MIN_TERM_HEIGHT'] or width < GAME_CONST['MIN_TERM_WIDTH']:
         raise Exception(f"Terminal window too small! Minimum size: {GAME_CONST['MIN_TERM_HEIGHT']}x{GAME_CONST['MIN_TERM_WIDTH']}")
@@ -179,7 +179,7 @@ def main(stdscr):
     game = Tetris()
     info_x = game.width * 2 + GAME_CONST['INFO_MARGIN']
     
-    # ゲームループの制御変数
+    # Control variables for the game loop
     fall_speed = GAME_CONST['FALL_SPEED']
     frame_rate = GAME_CONST['FRAME_RATE']
     last_fall_time = time.time()
@@ -222,7 +222,7 @@ def main(stdscr):
 
             stdscr.clear()
 
-            # ボードの描画
+            # Draw the board
             for y in range(game.height):
                 for x in range(game.width):
                     if game.board[y][x]:
@@ -231,7 +231,7 @@ def main(stdscr):
                     else:
                         stdscr.addstr(y, x*2, GAME_CONST['EMPTY_CHAR'])
             
-            # 現在のピースの描画（ゲームオーバーでない場合のみ）
+            # Draw the current piece (only if not game over)
             if game.current_piece and not game.game_over:
                 piece = game.current_piece['shape']
                 color = curses.color_pair(game.current_piece['color'])
@@ -242,7 +242,7 @@ def main(stdscr):
                                         (game.current_piece['x'] + x) * 2, 
                                         GAME_CONST['BLOCK_CHAR'], color)
             
-            # 情報表示
+            # Display information
             info_x = game.width * 2 + GAME_CONST['INFO_MARGIN']
             stdscr.addstr(0, info_x, f"Score: {game.score}")
             
@@ -251,7 +251,7 @@ def main(stdscr):
                 score_msg = f"Final Score: {game.score}"
                 quit_msg = "Press 'Q' to quit"
                 
-                # 画面中央にメッセージを表示
+                # Display message in the center of the screen
                 center_y = game.height // 2
                 center_x = game.width
                 
